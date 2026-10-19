@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroHub | Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 15px #0002;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .switch {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        #message {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>ElectroHub</h2>
+    <button onclick="showForm('register')">Register</button>
+    <button class="switch" onclick="showForm('login')">Log in</button>
+
+    <form id="account-form">
+        <h3 id="form-title">Create Seller Account</h3>
+        <input id="username" placeholder="Username" required>
+        <input id="email" type="email" placeholder="Email" required>
+        <input id="password" type="password"
+               placeholder="Password (at least 8 characters)" required>
+        <button type="submit">Register</button>
+    </form>
+    <p id="message"></p>
+</div>
+
+<script>
+    let mode = "register";
+
+    function showForm(selectedMode) {
+        mode = selectedMode;
+        document.getElementById("form-title").textContent =
+            mode === "register" ? "Create Seller Account" : "Seller Log In";
+
+        const emailField = document.getElementById("email");
+
+        emailField.style.display = mode === "register" ? "block" : "none";
+        emailField.required = mode === "register";
+
+        document.querySelector("#account-form button").textContent =
+            mode === "register" ? "Register" : "Log in";
+
+        document.getElementById("message").textContent = "";
+    }
+
+    document.getElementById("account-form").addEventListener("submit",
+        async function(event) {
+            event.preventDefault();
+
+            const data = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value
+            };
+
+            if (mode === "register") {
+                data.email = document.getElementById("email").value;
+            }
+
+            const endpoint = mode === "register" ? "register/" : "login/";
+
+            try {
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/products/" + endpoint,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(data)
+                    }
+                );
+
+                const result = await response.json();
+
+                const message = document.getElementById("message");
+                message.textContent = result.message || result.error ||
+                    (response.ok ? "Successful!" : "Something went wrong.");
+
+                if (response.ok && mode === "login") {
+                    window.location.href = "add-product.html";
+                }
+
+                message.style.color = response.ok ? "green" : "red";
+            } catch (error) {
+                document.getElementById("message").textContent =
+                    "Could not connect. Make sure the Django server is running.";
+            }
+        }
+    );
+</script>
+</body>
+</html>
