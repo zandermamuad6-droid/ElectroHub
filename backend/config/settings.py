@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'products',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 
@@ -137,6 +138,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:63342",
     "http://127.0.0.1:63342",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "authorization",
+    "content-type",
+    "x-csrftoken",
+]
+]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -144,3 +156,5 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
