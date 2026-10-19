@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
 
 from .models import Product
 from .serializers import ProductSerializer, SellerRegistrationSerializer
@@ -57,6 +58,7 @@ def seller_register(request):
     )
 
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def seller_login(request):
@@ -66,27 +68,25 @@ def seller_login(request):
     if not username or not password:
         return Response(
             {"error": "Username and password are required."},
-            status=status.HTTP_400_BAD_REQUEST,
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-    user = authenticate(
-        request,
-        username=username,
-        password=password,
-    )
+    user = authenticate(request, username=username, password=password)
 
     if user is None:
         return Response(
             {"error": "Invalid username or password."},
-            status=status.HTTP_401_UNAUTHORIZED,
+            status=status.HTTP_401_UNAUTHORIZED
         )
 
-    login(request, user)
+    token, created = Token.objects.get_or_create(user=user)
 
     return Response({
         "message": "Login successful!",
         "username": user.username,
+        "token": token.key
     })
+
 
 
 
