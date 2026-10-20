@@ -20,3 +20,20 @@ db.sqlite3
 
 # Collected static files
 staticfiles/
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+
+# Local media uploads
+backend/media/
+
+# Editor and operating system files
+frontend/.vscode/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Allow safe environment example files
+!.env.example
