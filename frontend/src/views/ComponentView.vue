@@ -1,6 +1,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   getComponents,
   createComponent,
@@ -8,6 +9,7 @@ import {
   deleteComponent,
 } from '../services/api'
 
+const router = useRouter()
 const components = ref([])
 const searchQuery = ref('')
 
@@ -36,6 +38,10 @@ const emptyForm = () => ({
 })
 
 const form = ref(emptyForm())
+
+function openProduct(component) {
+  router.push(`/products/${component.id}`)
+}
 
 const totalValue = (component) =>
     Number(component.quantity || 0) * Number(component.price || 0)
@@ -411,15 +417,30 @@ onBeforeUnmount(() => {
           <tbody>
           <tr v-for="component in filteredComponents" :key="component.id">
             <td>
-              <img
-                  v-if="component.image_url"
-                  :src="component.image_url"
-                  :alt="component.name"
-                  class="component-thumbnail"
-              />
-              <span v-else class="no-image">No image</span>
+              <button
+                  type="button"
+                  class="thumbnail-button"
+                  :aria-label="`View details for ${component.name}`"
+                  @click="openProduct(component)"
+              >
+                <img
+                    v-if="component.image_url"
+                    :src="component.image_url"
+                    :alt="component.name"
+                    class="component-thumbnail"
+                />
+                <span v-else class="no-image">No image</span>
+              </button>
             </td>
-            <td class="component-name">{{ component.name }}</td>
+            <td>
+              <button
+                  type="button"
+                  class="component-name product-link"
+                  @click="openProduct(component)"
+              >
+                {{ component.name }}
+              </button>
+            </td>
             <td>{{ component.quantity }}</td>
             <td>{{ formatPrice(component.price) }}</td>
             <td class="total-value">
@@ -688,6 +709,34 @@ tbody tr:last-child td {
 .component-name {
   color: #302b4e;
   font-weight: 700;
+}
+
+.product-link,
+.thumbnail-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.product-link:hover {
+  color: #7257d9;
+  text-decoration: underline;
+}
+
+.product-link:focus-visible,
+.thumbnail-button:focus-visible {
+  outline: 2px solid #7257d9;
+  outline-offset: 4px;
+  border-radius: 5px;
+}
+
+.thumbnail-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
 }
 
 .total-value {

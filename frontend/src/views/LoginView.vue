@@ -24,7 +24,6 @@
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="username">Username</label>
-
           <input
               id="username"
               v-model="username"
@@ -38,7 +37,6 @@
 
         <div class="form-group">
           <label for="password">Password</label>
-
           <input
               id="password"
               v-model="password"
@@ -65,7 +63,7 @@
         </p>
 
         <button type="submit" :disabled="loading" class="login-button">
-          <span>{{ loading ? 'Signing in...' : 'Sign In to Dashboard' }}</span>
+          <span>{{ loading ? 'Signing in...' : 'Sign In' }}</span>
           <span v-if="!loading" class="button-arrow">→</span>
           <span v-else class="spinner" aria-hidden="true"></span>
         </button>
@@ -90,9 +88,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { loginUser } from '../services/api'
 
+const route = useRoute()
 const router = useRouter()
 
 const username = ref('')
@@ -101,6 +100,21 @@ const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const currentYear = new Date().getFullYear()
+
+function getSafeRedirect() {
+  const redirect = route.query.redirect
+
+  if (
+      typeof redirect === 'string' &&
+      redirect.startsWith('/') &&
+      !redirect.startsWith('//') &&
+      redirect !== '/login'
+  ) {
+    return redirect
+  }
+
+  return '/dashboard'
+}
 
 async function handleLogin() {
   if (loading.value) return
@@ -124,9 +138,9 @@ async function handleLogin() {
     successMessage.value =
         `Welcome, ${user.display_name || user.username}!`
 
-    console.log('Login successful:', user)
+    const redirect = getSafeRedirect()
 
-    await router.push({ name: 'dashboard' })
+    await router.replace(redirect)
   } catch (error) {
     console.error('Login or navigation error:', error)
 
@@ -151,16 +165,8 @@ async function handleLogin() {
   overflow: hidden;
   padding: 36px 20px;
   background:
-      radial-gradient(
-          ellipse at 15% 20%,
-          rgba(30, 115, 235, 0.2),
-          transparent 42%
-      ),
-      radial-gradient(
-          ellipse at 85% 80%,
-          rgba(15, 83, 184, 0.2),
-          transparent 40%
-      ),
+      radial-gradient(ellipse at 15% 20%, rgba(30, 115, 235, 0.2), transparent 42%),
+      radial-gradient(ellipse at 85% 80%, rgba(15, 83, 184, 0.2), transparent 40%),
       linear-gradient(145deg, #061329 0%, #0a2042 52%, #10366b 100%);
   font-family: Inter, Arial, sans-serif;
   color: #f4f7ff;
@@ -187,14 +193,8 @@ async function handleLogin() {
   padding: 38px;
   border: 1px solid rgba(103, 166, 255, 0.32);
   border-radius: 22px;
-  background: linear-gradient(
-      145deg,
-      rgba(17, 44, 83, 0.97),
-      rgba(7, 24, 49, 0.98)
-  );
-  box-shadow:
-      0 28px 80px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: linear-gradient(145deg, rgba(17, 44, 83, 0.97), rgba(7, 24, 49, 0.98));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
 }
 
@@ -305,10 +305,7 @@ async function handleLogin() {
   color: #f5f8ff;
   font-family: inherit;
   font-size: 14px;
-  transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .form-group input::placeholder {
@@ -348,10 +345,7 @@ async function handleLogin() {
   font-weight: 750;
   cursor: pointer;
   box-shadow: 0 9px 24px rgba(0, 98, 255, 0.22);
-  transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      filter 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .login-button:hover:not(:disabled) {

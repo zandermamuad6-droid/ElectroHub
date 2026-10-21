@@ -146,6 +146,8 @@ async function handleLogout() {
       <nav class="navigation">
         <a class="nav-item active" href="#dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
         <RouterLink to="/components" class="nav-item" active-class="active"><span class="nav-icon">▦</span><span>Components</span></RouterLink>
+        <RouterLink to="/cart" class="nav-item" active-class="active"><span class="nav-icon">🛒</span><span>Cart</span></RouterLink>
+        <RouterLink to="/my-orders" class="nav-item" active-class="active"><span class="nav-icon">▤</span><span>My Orders</span></RouterLink>
         <a class="nav-item" href="#categories"><span class="nav-icon">◇</span><span>Categories</span></a>
         <a class="nav-item" href="#suppliers"><span class="nav-icon">♙</span><span>Suppliers</span></a>
         <a class="nav-item" href="#transactions"><span class="nav-icon">⇄</span><span>Transactions</span></a>

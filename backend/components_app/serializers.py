@@ -22,8 +22,12 @@ class ComponentSerializer(serializers.ModelSerializer):
         if not obj.image:
             return None
 
+        try:
+            image_url = obj.image.url
+        except (ValueError, OSError):
+            return None
+
         request = self.context.get("request")
-        image_url = obj.image.url
 
         if request:
             return request.build_absolute_uri(image_url)

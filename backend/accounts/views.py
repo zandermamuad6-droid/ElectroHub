@@ -16,7 +16,11 @@ from .serializers import RegisterSerializer, UserSerializer
 @permission_classes([permissions.AllowAny])
 def csrf_token(request):
     token = get_token(request)
-    response = Response({"csrfToken": token})
+
+    response = Response({
+        "csrfToken": token,
+    })
+
     return response
 
 
@@ -63,10 +67,13 @@ def login_view(request):
 
     login(request, user)
 
+    user_data = UserSerializer(user).data
+    user_data["is_staff"] = user.is_staff
+
     return Response(
         {
             "message": "Login successful.",
-            "user": UserSerializer(user).data,
+            "user": user_data,
         },
         status=status.HTTP_200_OK,
     )
@@ -90,7 +97,12 @@ def current_user(request):
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
+    user_data = UserSerializer(request.user).data
+
+    # Ipinapakita kung staff/admin ang kasalukuyang naka-login.
+    user_data["is_staff"] = request.user.is_staff
+
     return Response(
-        UserSerializer(request.user).data,
+        user_data,
         status=status.HTTP_200_OK,
     )

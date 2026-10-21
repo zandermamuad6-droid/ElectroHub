@@ -14,12 +14,42 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "display_name", "password"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "display_name",
+            "password",
+        ]
+        read_only_fields = ["id"]
+
+    def validate_username(self, value):
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(
+                "This username is already taken."
+            )
+        return value
+
+    def validate_email(self, value):
+        if value and User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError(
+                "This email is already registered."
+            )
+        return value
 
     def create(self, validated_data):
         password = validated_data.pop("password")
+
         user = User(**validated_data)
+
+        # New registrations must never create admin accounts.
         user.set_password(password)
+        user.is_staff = False
+        user.is_superuser = False
+
+        # Set the normal customer role.
+        user.role = "customer"
+
         user.save()
         return user
 
