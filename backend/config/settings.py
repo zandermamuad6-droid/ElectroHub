@@ -136,9 +136,13 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings for Vue + Vite
+
+# CORS settings for Vue + Vite
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5178",
+    "http://127.0.0.1:5178",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -147,6 +151,8 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5178",
+    "http://127.0.0.1:5178",
 ]
 
 SESSION_COOKIE_SAMESITE = "Lax"

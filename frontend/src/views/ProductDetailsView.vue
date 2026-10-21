@@ -11,6 +11,8 @@ const product = ref(null)
 const loading = ref(true)
 const error = ref('')
 const imageError = ref(false)
+const isAuthenticated = ref(false)
+const authChecking = ref(true)
 
 const productImage = computed(() => {
   return product.value?.image_url && !imageError.value
@@ -29,7 +31,31 @@ function handleImageError() {
   imageError.value = true
 }
 
-onMounted(async () => {
+async function checkAuthentication() {
+  authChecking.value = true
+
+  try {
+    const response = await fetch('http://localhost:8000/api/auth/me/', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+
+    isAuthenticated.value = response.ok
+  } catch (err) {
+    console.error('Authentication check failed:', err)
+    isAuthenticated.value = false
+  } finally {
+    authChecking.value = false
+  }
+}
+
+async function loadProduct() {
+  loading.value = true
+  error.value = ''
+
   try {
     const data = await getComponents()
     const products = Array.isArray(data) ? data : data?.results || []
@@ -47,6 +73,13 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  await Promise.all([
+    checkAuthentication(),
+    loadProduct(),
+  ])
 })
 </script>
 
@@ -80,7 +113,11 @@ onMounted(async () => {
             @error="handleImageError"
         />
 
-        <div v-else class="product-icon" aria-label="Product image unavailable">
+        <div
+            v-else
+            class="product-icon"
+            aria-label="Product image unavailable"
+        >
           ⚡
           <span>No image available</span>
         </div>
@@ -126,6 +163,23 @@ onMounted(async () => {
         </div>
 
         <button
+            v-if="authChecking"
+            class="primary-button"
+            disabled
+        >
+          Checking login status...
+        </button>
+
+        <button
+            v-else-if="isAuthenticated"
+            class="primary-button"
+            @click="router.push('/components')"
+        >
+          Go to Inventory →
+        </button>
+
+        <button
+            v-else
             class="primary-button"
             @click="router.push('/login')"
         >
@@ -277,8 +331,13 @@ onMounted(async () => {
   transition: background 0.2s;
 }
 
-.primary-button:hover {
+.primary-button:hover:not(:disabled) {
   background: #5932b8;
+}
+
+.primary-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .status-message {

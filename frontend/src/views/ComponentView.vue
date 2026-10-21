@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import {
   getComponents,
   createComponent,
@@ -9,6 +9,17 @@ import {
 } from '../services/api'
 
 const components = ref([])
+const searchQuery = ref('')
+
+const filteredComponents = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) return components.value
+
+  return components.value.filter((component) =>
+      String(component.name || '').toLowerCase().includes(query)
+  )
+})
 const loading = ref(false)
 const saving = ref(false)
 const showForm = ref(false)
@@ -353,7 +364,21 @@ onBeforeUnmount(() => {
           <p>All registered electronic components</p>
         </div>
 
-        <span class="count-badge">{{ components.length }} items</span>
+        <span class="count-badge">
+          {{ filteredComponents.length }}
+          {{ filteredComponents.length === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
+
+      <div class="search-wrapper">
+        <input
+            id="component-search"
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search components by name..."
+            autocomplete="off"
+            aria-label="Search components by name"
+        />
       </div>
 
       <div v-if="loading" class="empty-state">
@@ -363,6 +388,11 @@ onBeforeUnmount(() => {
       <div v-else-if="components.length === 0" class="empty-state">
         <h3>No components yet</h3>
         <p>Click “Add Component” to add your first inventory item.</p>
+      </div>
+
+      <div v-else-if="filteredComponents.length === 0" class="empty-state">
+        <h3>No matching components</h3>
+        <p>Try searching with a different component name.</p>
       </div>
 
       <div v-else class="table-wrapper">
@@ -379,7 +409,7 @@ onBeforeUnmount(() => {
           </thead>
 
           <tbody>
-          <tr v-for="component in components" :key="component.id">
+          <tr v-for="component in filteredComponents" :key="component.id">
             <td>
               <img
                   v-if="component.image_url"
@@ -593,6 +623,32 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.search-wrapper {
+  margin-bottom: 20px;
+}
+
+.search-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  border: 1px solid #dedbea;
+  border-radius: 10px;
+  outline: none;
+  color: #252344;
+  background: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-wrapper input:focus {
+  border-color: #8068e2;
+  box-shadow: 0 0 0 3px rgb(128 104 226 / 12%);
+}
+
+.search-wrapper input::placeholder {
+  color: #a09cb3;
 }
 
 .table-wrapper {
