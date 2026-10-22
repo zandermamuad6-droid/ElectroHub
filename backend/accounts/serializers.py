@@ -47,8 +47,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_staff = False
         user.is_superuser = False
 
-        # Set the normal customer role.
-        user.role = "customer"
+        # Use the normal customer role defined in the User model.
+        user.role = User.Role.USER
 
         user.save()
         return user
