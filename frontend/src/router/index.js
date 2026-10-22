@@ -87,9 +87,13 @@ router.beforeEach(async (to) => {
     // Use the shared API service instead of localhost.
     const response = await getCurrentUser()
 
-    // Support APIs that return either the user directly
-    // or inside a "user" property.
-    const user = response?.user ?? response
+    // Support common response shapes: { user: {...} }, { data: {...} },
+    // or a user object returned directly by the API.
+    const user =
+        response?.user ??
+        response?.data?.user ??
+        response?.data ??
+        response
 
     if (!user || !user.username) {
       return {

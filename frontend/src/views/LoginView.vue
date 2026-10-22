@@ -130,16 +130,31 @@ async function handleLogin() {
   loading.value = true
 
   try {
-    const user = await loginUser(
+    const response = await loginUser(
         username.value.trim(),
         password.value,
     )
 
-    successMessage.value =
-        `Welcome, ${user.display_name || user.username}!`
+    // The API may return the user directly or nested under "user".
+    const userData =
+        response?.user ??
+        response?.data?.user ??
+        response?.data ??
+        response
+
+    // Prefer a non-empty display name, then first name, then username.
+    const displayName = [
+          userData?.display_name,
+          userData?.first_name,
+          userData?.username,
+          response?.username,
+          username.value,
+        ].find((value) => typeof value === 'string' && value.trim())?.trim()
+        || 'there'
+
+    successMessage.value = `Welcome, ${displayName}!`
 
     const redirect = getSafeRedirect()
-
     await router.replace(redirect)
   } catch (error) {
     console.error('Login or navigation error:', error)
