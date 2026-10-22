@@ -69,6 +69,11 @@
         </button>
       </form>
 
+      <p class="register-prompt">
+        Don’t have an account?
+        <RouterLink to="/register" class="register-link">Sign up</RouterLink>
+      </p>
+
       <div class="security-note">
         <span class="security-icon">▣</span>
         <span>Your account is protected by secure authentication.</span>
@@ -435,6 +440,33 @@ async function handleLogin() {
   border-color: rgba(52, 211, 153, 0.25);
   background: rgba(6, 95, 70, 0.24);
   color: #8bf2c9;
+}
+
+.register-prompt {
+  margin: 22px 0 0;
+  color: #a8bfdf;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.register-link {
+  margin-left: 4px;
+  color: #68b4ff;
+  font-weight: 750;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.register-link:hover {
+  color: #a4d5ff;
+  text-decoration: underline;
+}
+
+.register-link:focus-visible {
+  outline: 2px solid #68b4ff;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .security-note {
