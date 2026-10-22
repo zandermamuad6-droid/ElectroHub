@@ -1,4 +1,6 @@
+
 import { createRouter, createWebHistory } from 'vue-router'
+import { getCurrentUser } from '../services/api.js'
 
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
@@ -76,30 +78,27 @@ router.beforeEach(async (to) => {
       (record) => record.meta.requiresAuth,
   )
 
-  // Public pages, including Login and Register.
+  // Allow access to public pages.
   if (!requiresAuth) {
     return true
   }
 
   try {
-    const response = await fetch(
-        'http://localhost:8000/api/auth/me/',
-        {
-          method: 'GET',
-          credentials: 'include',
-        },
-    )
+    // Use the shared API service instead of localhost.
+    const response = await getCurrentUser()
 
-    if (!response.ok) {
+    // Support APIs that return either the user directly
+    // or inside a "user" property.
+    const user = response?.user ?? response
+
+    if (!user || !user.username) {
       return {
         name: 'login',
         query: { redirect: to.fullPath },
       }
     }
 
-    const user = await response.json()
-
-    // Admin-only pages.
+    // Restrict admin pages to staff users.
     if (
         to.matched.some((record) => record.meta.requiresAdmin) &&
         user.is_staff !== true
